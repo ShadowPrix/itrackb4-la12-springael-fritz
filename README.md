@@ -1,19 +1,19 @@
-# ITRACKB4 LA11 - Movies
+# ITRACKB4 LA12 - Movies
 
 Prepared by: Fritz C. Springael
 
 ## Q1:
-Route model binding needs two things to be true. Name both, and say what happens when only one of them is.?
+The top of your error page named a file inside vendor. Say why that was not where your mistake was, and where the page showed you it actually was.
 
-[Answer - The parameter must be type-hinted with the model, as in `show(Movie $movie)`, and its name must match the route segment `{movie}`, so it is written `$movie`. If the type-hint is right but the name is wrong, Laravel has no segment to fill it from, so I don't get the movie from the URL and no error tells me why. If the name matches but there is no `Movie` type-hint, `$movie` is only the plain id from the URL, not a record.]
+[Answer - The page named `vendor\laravel\framework\...\ForwardsCalls.php:67` because that is where PHP stopped. Laravel's own code is the part that noticed `Movie::withh()` does not exist, so it threw the error there. My mistake was in `app\Http\Controllers\MovieController.php` on line 18, where I typed `Movie::withh('genre')`. The Exception trace had already opened that frame and marked the line in red.]
 
 
 ## Q2:
-Your Delete link opened the detail page instead of deleting anything. Explain why.?
+You wrote one Log::info line with a context array. Name something it will tell you next month that the error page could not.
 
-[Answer - My link, `<a href="{{ route('movies.destroy', $movie) }}">`, can only send GET to `/movies/5`. The destroy route only answers DELETE at that address, while `movies.show` answers GET there, so the browser opened the detail page for Grown Ups 2 and nothing was deleted. There was no error. The fix was a form with `@method('DELETE')`.]
+[Answer - My line `Log::info('Movie saved', ['id' => $movie->id, 'genre_id' => $movie->genre_id])` records which movie was saved, which genre it belonged to, and when. The error page only appears for a failed request and disappears once the browser is closed. It says nothing about the requests that worked, such as movie 1 and movie 2 being updated at 08:33 and 08:34.]
 
 ## Q3:
-old() takes a second argument on your edit form. What would break if you left it out, and what would break if you used only it?
+Your guard answers with 403 instead of redirecting back with a message. Say when each of the two is the better answer.
 
-[Answer - If I left it out, as in `old('title')`, the edit form would open with empty fields, exactly like my screenshot 3, because there is no fallback to the movie's own values. If I used only the second argument, as in `$movie->title`, a rejected edit would throw away what I typed, like "TEST" in Rating, and show the original 9.1 again.]
+[Answer - My guard in `destroy()` stops the last movie in a genre from being deleted, like Grown Ups, the last Comedy. A 403 is better when the request should never have been made, for example someone sending the DELETE straight to the address with no Delete button involved. Redirecting back with a message is better when a person did something reasonable through the page, like clicking Delete on the last Comedy, and needs to be told why it didn't work so they can carry on.]

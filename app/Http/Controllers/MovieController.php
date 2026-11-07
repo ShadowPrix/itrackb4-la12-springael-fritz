@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Movie;
 use App\Models\Genre;
+use Illuminate\Support\Facades\Log;
 
 class MovieController extends Controller
 {
@@ -69,19 +70,23 @@ class MovieController extends Controller
     public function update(Request $request, Movie $movie)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'genre_id' => 'required|exists:genres,id',
-            'rating' => 'required|numeric',
-            'year' => 'required|integer',
+            // your same rules
         ]);
 
         $movie->update($validated);
 
-        return redirect()->route('movies.index')->with('success', 'Movie updated successfully.');
+        Log::info('Movie saved', [
+            'id' => $movie->id,
+            'genre_id' => $movie->genre_id,
+        ]);
+
+        return redirect()->route('movies.index');
     }
 
     public function destroy(Movie $movie)
     {
+        abort_if($movie->genre->movies()->count() === 1, 403);
+
         $movie->delete();
 
         return redirect()->route('movies.index');
